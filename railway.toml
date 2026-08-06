@@ -1,27 +1,10 @@
+# The Dockerfile pins Node and Caddy explicitly. Nixpacks was auto-detecting an
+# EOL Node version (removed from nixpkgs) and mixing bun/npm, which broke builds.
 [build]
-builder = "nixpacks"
-
-# Caddy is added to the build image alongside Node so the same container that
-# builds `dist/` can also serve it at runtime.
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["nodejs_20", "caddy"]
-
-[build.nixpacksPlan.phases.install]
-dependsOn = ["setup"]
-cmds = ["npm ci"]
-
-# Normalizes/validates the Caddyfile at build time: a syntax error fails the
-# build instead of crash-looping the deploy.
-[build.nixpacksPlan.phases.caddy]
-dependsOn = ["setup"]
-cmds = ["caddy fmt --overwrite Caddyfile"]
-
-[build.nixpacksPlan.phases.build]
-dependsOn = ["install", "caddy"]
-cmds = ["npm run build"]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "caddy run --config Caddyfile --adapter caddyfile 2>&1"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"

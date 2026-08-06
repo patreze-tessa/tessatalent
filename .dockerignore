@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+dist
+dist-ssr
+.lovable
+.claude
+*.log
+.env
+.env.*
+bun.lock
+bun.lockb
+README.md
